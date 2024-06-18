@@ -1,11 +1,8 @@
-from __init__ import CURSOR, CONN
+import sqlite3
 from sqlite3 import IntegrityError
-from helper import Helper
-from game import Game
-from game_space import Game_space
-from space import Space
+from models.__init__ import CONN, CURSOR
 
-class Player(Helper):
+class Player():
     
     @classmethod
     def create_table(cls):
@@ -36,6 +33,22 @@ class Player(Helper):
         player = cls(name, player_type, curr_pos, money, net_worth, game_id)
         player.save()
         return player
+    
+    @classmethod
+    def instance_from_db(cls, row):
+        player = cls(
+            id = row[0],
+            name = row[1], 
+            player_type = row[2],
+            curr_pos = row[3],
+            money = row[4],
+            net_worth = row[5],
+            game_id = row[6])
+        
+    @classmethod    
+    def get_all_players(cls):
+        pass      
+        
 
     def __init__(self, name, player_type, curr_pos = 0, money = 1800, net_worth = 1800, game_id = None, id = None):
         self.name = name
@@ -74,15 +87,15 @@ class Player(Helper):
         
 
 
-    @property
-    def name(self):
-        return self._name
+    #@property
+    #def name(self):
+    #    return self._name
 
-    @name.setter
-    def name(self, name):
-        if not isinstance(name, int):
-            raise TypeError("Player name must be a string")
-        elif 0 < len(name) < 16:
-            raise ValueError("Player name must be less than 16 characters")
-        else:
-            self._name = name
+    #@name.setter
+    #def name(self, name):
+    #    if not isinstance(name, str):
+    #        raise TypeError("Player name must be a string")
+    #    elif 0 < len(name) < 16:
+    #        raise ValueError("Player name must be less than 16 characters")
+    #    else:
+    #        self._name = name

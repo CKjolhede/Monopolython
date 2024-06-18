@@ -1,14 +1,10 @@
-from __init__ import CURSOR, CONN
 import sqlite3
-from sqlite3 import IntegrityError
-from helper import Helper
-from game_space import Game_space
-from player import Player
 
-CONN = sqlite3.connect('resources.db')
-CURSOR = CONN.execute()
+from models.helper import Helper
+from models.__init__ import CONN, CURSOR
 
-class Space(Helper):
+
+class Space():
         
     @classmethod
     def create_table(cls):

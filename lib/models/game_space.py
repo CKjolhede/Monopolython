@@ -1,9 +1,6 @@
-from __init__ import CURSOR, CONN
-from sqlite3 import IntegrityError
-from space import Space
-from game import Game
-from player import Player
-from helper import Helper
+import sqlite3
+from sqlite3 import *
+from models.__init__ import CONN, CURSOR
 
 class Game_space:
     

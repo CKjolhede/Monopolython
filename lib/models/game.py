@@ -1,11 +1,9 @@
-from __init__ import CURSOR, CONN
-from sqlite3 import IntegrityError
-from helper import Helper
-from game_space import Game_space
-from player import Player
-from space import Space
+import sqlite3
+from sqlite3 import *
+from models.helper import Helper
+from models.__init__ import CONN, CURSOR
 
-class Game(Helper):
+class Game():
 
     @classmethod
     def create_table(cls):
@@ -15,10 +13,12 @@ class Game(Helper):
                 CURSOR.execute(
                 """CREATE TABLE IF NOT EXISTS games (
                 win_condition INTEGER,
-                current_player TEXT,
+                curr_player TEXT,
                 next_player TEXT);""")
         except IntegrityError as e:
             return e 
+
+
 
     @classmethod
     def drop_table(cls):
@@ -68,29 +68,18 @@ class Game(Helper):
         sql = """ DELETE FROM games WHERE id = ? """
         CURSOR.execute(sql, (self.id,))
         CONN.commit()
-        
-    @property
-    def win_condition(self):
-        return self._win_condtion
 
-    @win_condition.setter
-    def win_condition(self, win_condition):
-        if not isinstance(win_condition, int):
-            raise TypeError("Win Condition must be an integer")
-        elif 5000 < self.win_condition < 20000:
-            raise ValueError("Dollar amount must be between 5000 and 20000")
-        else:
-            self._win_condition = win_condition
+Game.drop_table()      
+Game.create_table()  
+#@property
+    #def win_condition(self):
+    #    return self._win_condtion
 
-    @property
-    def id(self):
-        return self._id
-
-    @id.setter
-    def id(self, id):
-        if hasattr(self, "id"):
-            raise AttributeError("Cannot change player id")
-        elif not isinstance(id, int):
-            raise TypeError("Id must be an integer")
-        else:
-            self._id = id
+    #@win_condition.setter
+    #def win_condition(self, win_condition):
+    #    if not isinstance(win_condition, int):
+    #        raise TypeError("Win Condition must be an integer")
+    #    elif 5000 < self.win_condition < 20000:
+    #        raise ValueError("Dollar amount must be between 5000 and 20000")
+    #    else:
+    #        self._win_condition = win_condition
