@@ -1,19 +1,7 @@
 # lib/helper.py
 import os
-from game import Game
-
-
-class Helper(): 
-    
-    
-        
-    
-            
-    def start_game():
-        pass
-
-
-
+import sqlite3
+import random 
 
 
 
@@ -32,5 +20,8 @@ class Helper():
 
             #winners: list[str] = sample(names, k=(#number of selections from list you want)  <-- output unique list
             #winners: list[str] = choices(names, k=(#number of selections from list you want) <-- may have repeat selections
-            
-from random import randint as ri
+
+class Helper():
+    
+    def blank():
+        pass

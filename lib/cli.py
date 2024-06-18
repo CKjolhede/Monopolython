@@ -1,15 +1,19 @@
 # lib/cli.py
-from rich import print
-from rich import console
+import sqlite3
+import rich
+import pick
 import os
 import random
-import time
 from models.player import Player
 from models.game_space import Game_space
 from models.game import Game
 from models.helper import Helper
+from models.__init__ import CONN, CURSOR
 
-player_home_positions = [3, 9, 15, 21]
+player_house_positions = [3, 9, 15, 21]
+player_home_position = random.sample(player_house_positions, k=4)
+
+
 
 def main_menu():
     print("Please select an option:")
@@ -25,14 +29,12 @@ def main():
         main_menu()
         choice = input("What would you like to do?\n Enter the number of your choice")
         if choice == "1":
-            new_game_setup()
+            game = Game.create()
+            new_game_setup(game)
         elif choice == "2":
             exit_program()
         else:
             print("Invalid choice")
-
-if __name__ == "__main__":
-    main()
 
 
 def new_game_setup_menu():
@@ -42,10 +44,7 @@ def new_game_setup_menu():
     print("3 Start Game")
     print("4 Quit Game")
     
-def new_game_setup():
-        game = Game.create()
-        player_house_positions = [3, 9, 15, 21]
-        player_home_position = random.sample(player_house_positions, k=4)
+def new_game_setup(game):
         os.system('clear')
         new_game_setup_menu()
         choice = input()
@@ -57,9 +56,9 @@ def new_game_setup():
             game.win_condition == input(10000)
             game.update()
         elif choice == "3":
-            start_game()
+            start_game(game)
         elif choice == "4":
-            exit_program_prestart()
+            exit_program_prestart(game)
         else:
             print("That is not a valid input.")
             print("Enter the number next to your choice")
@@ -77,18 +76,32 @@ def player_setup_menu():
 def player_setup(game):
     os.system('clear')
     player_setup_menu()
+    print("What would you like to do?")
     choice = input()    
     if choice == "1":
         enter_new_player(game)
+    elif choice == "2":
+        get_all_players_by_game(game)
+    elif choice == "3":
+        remove_player(game)
+    elif choice == "4":
+        edit_player(game)
+    elif choice == "5":
+        new_game_setup(game)
+    else:
+        print("Invalid choice, please select again")
         
 def enter_new_player(game):
-        while 0 < len(name) < 16:
-            print("Enter Your Player's Name (required)")
-            print("Name must be less than 16 characters")
-            name = input()
-            name = name.upper
-            if 0 < len(name) < 16:
-                print("Name is invalid")
+        os.system('clear')
+        print("Enter Your Player's Name (required)")
+        print("Name must be less than 16 characters")
+        value = input()
+        name = value
+        #print(f'my name is {name}')
+        if not 0 < len(name) < 16:
+            print("Name is invalid")
+        else:
+        
 
         print("\n, \n, \n, \n, \n")
         print("Enter which type of player you would like to be")
@@ -108,7 +121,7 @@ def enter_new_player(game):
         else:
             print("You must choose from the 4 player types")
         player = Player.create(name, player_type, 0, 1800, 1800, game.id)
-        position = player_home_positions.pop
+        position = player_home_position.pop
         enter_player_home(position, player, game)
         
 def enter_player_home(position, player, game):
@@ -120,10 +133,25 @@ def enter_player_home(position, player, game):
             print("Street cannot be left blank")
         
         Game_space(game.id, player.id, street_name, 0, 100, position, None, 0, False)
-        
+        player_setup(game)
 
-def start_game():
+
+    
+
+def get_all_players_by_game(cls, game):
+    sql = """ SELECT * FROM players WHERE game_id = game.id """
+
+def start_game(game):
     pass
 
-def exit_program_prestart():
+def exit_program_prestart(game):
     pass
+
+def remove_player(game):
+    pass
+
+def edit_player(game):
+    pass
+
+if __name__ == "__main__":
+    main()
