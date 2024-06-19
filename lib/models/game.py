@@ -1,6 +1,5 @@
-import sqlite3
+
 from sqlite3 import *
-from models.helper import Helper
 from models.__init__ import CONN, CURSOR
 
 class Game():
@@ -12,13 +11,12 @@ class Game():
             with CONN:
                 CURSOR.execute(
                 """CREATE TABLE IF NOT EXISTS games (
+                id INTEGER PRIMARY KEY,
                 win_condition INTEGER,
                 curr_player TEXT,
                 next_player TEXT);""")
         except IntegrityError as e:
             return e 
-
-
 
     @classmethod
     def drop_table(cls):
@@ -30,18 +28,18 @@ class Game():
         CONN.commit()
 
     @classmethod
-    def create(cls, win_condition = 10000):
+    def create(cls, win_condition = 10000, curr_player = None, next_player = None):
         """ Initialize a new Game instance and save the object to the database """
-        game = cls(win_condition)
+        game = cls()
         game.save()
         return game
     
-    def __init__(self, win_condition, id = None):
+    def __init__(self, win_condition = 10000, curr_player = None, next_player = None, id = None):
         self.win_condition = win_condition
-        self.players = []
-        self.curr_player = ""
-        self.next_player = ""
+        self.curr_player = curr_player
+        self.next_player = next_player
         self.id = id
+        self.players = []
 
     def __repr__(self):
         return f"<Game {self.id}: First Net-Worth = {self.win_condition} wins: List of players: {self.players}>"
@@ -59,7 +57,7 @@ class Game():
         sql = """
             UPDATE games
             SET win_condition = ?, curr_player = ?, next_player = ?
-            WHERE id = ?
+            WHERE id = ?;
         """
         CURSOR.execute(sql, (self.win_condition, self.curr_player, self.next_player, self.id))
         CONN.commit()
@@ -68,18 +66,9 @@ class Game():
         sql = """ DELETE FROM games WHERE id = ? """
         CURSOR.execute(sql, (self.id,))
         CONN.commit()
+        
+    
 
-Game.drop_table()      
-Game.create_table()  
-#@property
-    #def win_condition(self):
-    #    return self._win_condtion
-
-    #@win_condition.setter
-    #def win_condition(self, win_condition):
-    #    if not isinstance(win_condition, int):
-    #        raise TypeError("Win Condition must be an integer")
-    #    elif 5000 < self.win_condition < 20000:
-    #        raise ValueError("Dollar amount must be between 5000 and 20000")
-    #    else:
-    #        self._win_condition = win_condition
+        
+        
+        

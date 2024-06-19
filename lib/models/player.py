@@ -1,6 +1,6 @@
-import sqlite3
-from sqlite3 import IntegrityError
+from sqlite3 import *
 from models.__init__ import CONN, CURSOR
+from models.game_space import Game_space
 
 class Player():
     
@@ -16,7 +16,8 @@ class Player():
                 curr_pos INTEGER,
                 money INTEGER,
                 net_worth INTEGER,
-                game_id INTEGER FOREIGN KEY);""")
+                game_id INTEGER,
+                FOREIGN KEY (game_id) REFERENCES games(id));""")
         except IntegrityError as e:
             return e 
 
@@ -45,10 +46,6 @@ class Player():
             net_worth = row[5],
             game_id = row[6])
         
-    @classmethod    
-    def get_all_players(cls):
-        pass      
-        
 
     def __init__(self, name, player_type, curr_pos = 0, money = 1800, net_worth = 1800, game_id = None, id = None):
         self.name = name
@@ -60,12 +57,12 @@ class Player():
         self.id = id
     
     def __repr__(self):
-        return f"<{self.name}: Player Type = {self.player_type}: Money = {self.money}: Net Worth = {self.net_worth}: Postion = {Game_space.find_by_position(self.curr_pos).street_name}>"
+        return f"<{self.name}: ID# = {self.id}\nPlayer Type = {self.player_type}\nMoney = {self.money}\nNet Worth = {self.net_worth}\n Postion = {self.curr_pos}>"
 
     def save(self):
         sql = """
             INSERT INTO players (name, player_type, curr_pos, money, net_worth, game_id)
-            VALUES (?, ?, ?, ?, ?, ?};
+            VALUES (?, ?, ?, ?, ?, ?);
         """
         CURSOR.execute(sql, (self.name, self.player_type, self.curr_pos, self.money, self.net_worth, self.game_id))
         CONN.commit()
@@ -85,17 +82,10 @@ class Player():
         CURSOR.execute(sql, (self.id,))
         CONN.commit()
         
-
-
-    #@property
-    #def name(self):
-    #    return self._name
-
-    #@name.setter
-    #def name(self, name):
-    #    if not isinstance(name, str):
-    #        raise TypeError("Player name must be a string")
-    #    elif 0 < len(name) < 16:
-    #        raise ValueError("Player name must be less than 16 characters")
-    #    else:
-    #        self._name = name
+    @classmethod
+    def get_all_players_by_gameid(cls, gameid):
+        sql = """ SELECT * FROM players WHERE game_id = ?; """
+        rows = CURSOR.execute(sql, (gameid,)).fetchall()
+        players = [cls.instance_from_db(row) for row in rows]
+        [print(player) for player in players]
+        return players
