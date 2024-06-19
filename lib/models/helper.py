@@ -3,8 +3,6 @@ import os
 import sqlite3
 import random 
 
-
-
 # Larger example that inserts many records at a time
 #purchases = [('2006-03-28', 'BUY', 'IBM', 1000, 45.00),
 #             ('2006-04-05', 'BUY', 'MSFT', 1000, 72.00),
@@ -20,8 +18,6 @@ import random
 
             #winners: list[str] = sample(names, k=(#number of selections from list you want)  <-- output unique list
             #winners: list[str] = choices(names, k=(#number of selections from list you want) <-- may have repeat selections
-
-class Helper():
     
-    def blank():
-        pass
+def blank():
+    pass
