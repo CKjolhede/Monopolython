@@ -8,7 +8,6 @@ from models.player import Player
 from models.game_space import Game_space
 from models.game import Game
 from models.__init__ import CONN, CURSOR
-from models.setup_helper import (exit_program, exit_program_early, player_home_position, )
 
 
 player_house_positions = [4, 10, 16, 22]
@@ -43,6 +42,10 @@ def exit_program():
     exit()
     
 def exit_program_early(game):
+    players = get_player_list(game)
+    for player in players:
+        Game_space.delete(game, player)
+        Player.delete(player)
     Game.delete(game)
     os.system('clear')
     print("Goodbye!")
