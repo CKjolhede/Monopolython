@@ -47,7 +47,7 @@ following commands:
 pipenv install
 pipenv shell
 ```
-### a migrate.py file exists to reinitiate the database and its tables if necessary
+### *** a migrate.py file exists to reinitiate the database and its tables if necessary ***
 ---
 
 ## Database Organization and Relationships
