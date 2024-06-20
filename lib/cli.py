@@ -71,7 +71,7 @@ def new_game_setup(game):
         os.system('clear')
         start_game(game)
     elif choice == "4":
-        exit_program_early()
+        exit_program_early(game)
     else:
         os.system('clear')
         print("That is not a valid input.")
@@ -289,18 +289,22 @@ def assign_game_space(game_id, player_id, space_id, street_name, position, price
     player_setup(game)
 
 def set_win_condition(game):
-    print("enter NET WORTH needed to win")
-    print("Must be between 5000 and 20000")
-    win_condition = input()
-    try:
-        if 5000 <= int(win_condition) <= 20000:
-            update_game_win_cond(game, win_condition)    
-    except ValueError:
-        os.system('clear')
-        print("Must enter a number between 5000 and 20000")
-        time.sleep(1.25)
-    finally:
-        return set_win_condition(game)
+    while True:
+        try:
+                print("enter NET WORTH needed to win")
+                print("Must be between 5000 and 20000")
+                win_condition = input()
+                if not 5000 <= int(win_condition) <= 20000:
+                    os.system('clear')
+                    print("INVALID ENTRY\n")
+                    time.sleep(2.5)
+                    continue
+                else:
+                    update_game_win_cond(game, win_condition)
+                    new_game_setup(game)
+                    break
+        except ValueError:
+            continue
 
 def update_game_win_cond(game, win_condition):
     game.win_condition = int(win_condition)
