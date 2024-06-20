@@ -4,6 +4,10 @@
 
 - Monopolython is a command line interface application that is a smaller version of the commonly known Monopoly™ board game. This application is a meant to be a demonstration of how object relational mapping should be done using Sqlite3 and Python.
 
+### Notable Mention:
+
+the repository called helpertransfer contains all game play code and menus however time expired before I was able to debug effectively.  The issues appeared upon attempting to utilize helper files.  The main repository contains fully functional code for setting up a game which includes all crud requirements for all 3 classes. Code breaks at the point of starting the gameplay post setup.   
+
 ---
 
 ## Introduction
