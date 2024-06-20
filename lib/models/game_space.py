@@ -1,4 +1,5 @@
 from sqlite3 import *
+import ipdb
 from models.__init__ import CONN, CURSOR
 from models.space import Space
 
@@ -41,15 +42,15 @@ class Game_space:
         game_space.save()
         return game_space
     
-    def __init__(self, game_id, player_id, space_id, street_name, position, price = 0, rent = 0, neighborhood = None, houses = 0, monopoly = False, id = None):
+    def __init__(self, game_id, player_id, space_id, street_name, position, price = 0, rent = 0, neighborhood = None, houses = 0, monopoly = 0, id = None):
         space = Space.find_by_space_position(position)
         self.game_id = game_id
         self.player_id = player_id
         self.space_id = space_id
         self.street_name = street_name
+        self.position = position
         self.price = space.price
         self.rent = space.rent
-        self.position = position
         self.neighborhood = space.neighborhood
         self.houses = 0
         self.monopoly = False 
@@ -75,10 +76,11 @@ class Game_space:
             """
         CURSOR.execute(sql, (self.player_id, self.street_name, self.rent, self.houses, self.monopoly, self.id))
         CONN.commit()
-        
-    def delete(self):
-        sql = """ DELETE FROM game_spaces WHERE id = ?;"""
-        CURSOR.execute(self, (self.id,))
+
+    @classmethod
+    def delete(cls, game, player):
+        sql = """ DELETE FROM game_spaces WHERE game_id = ? AND player_id = ? and neighborhood = ?;"""
+        CURSOR.execute(sql, (game.id, player.id, "Player"))
         CONN.commit()
         
     @classmethod    
@@ -90,20 +92,21 @@ class Game_space:
     @classmethod
     def instance_from_db(cls, row):
         game_space = cls(
-            id = row[0],
-            game_id = row[1],
-            player_id = row[2],
-            space_id = row[3],
-            street_name = row[4],
-            position = [5],
-            price = [6],
-            rent = [7],
-            neighborhood = [8],
-            houses = [9],
-            monopoly = [10])
+            row[1],
+            row[2],
+            row[3],
+            row[4],
+            row[5],
+            row[6],
+            row[7],
+            row[8],
+            row[9],
+            row[10],
+            row[0],)
         
     @classmethod
-    def get_game_space_by_playerid_gameid(cls, game, player):
-        sql = """ SELECT * FROM game_spaces WHERE (game_id = ? AND player_id = ?) LIMIT 1;"""
-        row = CURSOR.execute(sql, (game.id, player.id)).fetchone()
+    def get_player_home(cls, game, player):
+        sql = """ SELECT * FROM game_spaces WHERE (game_id = ? AND player_id = ? AND neighborhood = ?) LIMIT 1;"""
+        row = CURSOR.execute(sql, (game.id, player.id, "Player")).fetchone()
+        ipdb.set_trace()
         return cls.instance_from_db(row) if row else None        

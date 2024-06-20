@@ -1,7 +1,9 @@
 from sqlite3 import *
-from models.__init__ import CONN, CURSOR
+from models. __init__ import CONN, CURSOR
 from models.game_space import Game_space
-
+import ipdb
+#CONN = sqlite3.connect('./monopolython.db')
+#CURSOR = CONN.cursor()
 class Player():
     
     @classmethod
@@ -9,7 +11,7 @@ class Player():
         try:
             with CONN:
                 CURSOR.execute(
-                """CREATE TABLE IF NOT EXISTS players (
+                """ CREATE TABLE IF NOT EXISTS players (
                 id INTEGER PRIMARY KEY,
                 name TEXT,
                 player_type TEXT,
@@ -30,24 +32,24 @@ class Player():
         CONN.commit()
 
     @classmethod
-    def create(cls, name, player_type, curr_pos = 0, money = 1800, net_worth = 1800, game_id = None):
+    def create(cls, name, player_type, curr_pos = 1, money = 1800, net_worth = 1800, game_id = None):
         player = cls(name, player_type, curr_pos, money, net_worth, game_id)
         player.save()
         return player
     
     @classmethod
     def instance_from_db(cls, row):
-        player = cls(
-            id = row[0],
-            name = row[1], 
-            player_type = row[2],
-            curr_pos = row[3],
-            money = row[4],
-            net_worth = row[5],
-            game_id = row[6])
+        return cls(
+            row[1], 
+            row[2],
+            row[3],
+            row[4],
+            row[5],
+            row[6],
+            row[0],)
         
 
-    def __init__(self, name, player_type, curr_pos = 0, money = 1800, net_worth = 1800, game_id = None, id = None):
+    def __init__(self, name, player_type, curr_pos = 1, money = 1800, net_worth = 1800, game_id = None, id = None):
         self.name = name
         self.player_type = player_type
         self.curr_pos = curr_pos
@@ -57,7 +59,7 @@ class Player():
         self.id = id
     
     def __repr__(self):
-        return f"<{self.name}: ID# = {self.id}\nPlayer Type = {self.player_type}\nMoney = {self.money}\nNet Worth = {self.net_worth}\n Postion = {self.curr_pos}>"
+        return f"{self.name}  |  {self.player_type}  |  Money:${self.money}  |  Net Worth:{self.net_worth}"
 
     def save(self):
         sql = """
@@ -77,15 +79,24 @@ class Player():
         CURSOR.execute(sql, (self.name, self.player_type, self.curr_pos, self.money, self.net_worth, self.id))
         CONN.commit()
 
-    def delete(self):
+    @classmethod
+    def delete(cls, player):
         sql = """ DELETE FROM players WHERE id = ?;"""
-        CURSOR.execute(sql, (self.id,))
+        CURSOR.execute(sql, (player.id,))
         CONN.commit()
         
     @classmethod
-    def get_all_players_by_gameid(cls, gameid):
-        sql = """ SELECT * FROM players WHERE game_id = ?; """
-        rows = CURSOR.execute(sql, (gameid,)).fetchall()
-        players = [cls.instance_from_db(row) for row in rows]
-        [print(player) for player in players]
-        return players
+    def get_all_players_by_gameid(cls, game):
+        try:
+            with CONN:
+                result = CURSOR.execute("SELECT * FROM players WHERE game_id = ?;", (game.id,))
+                rows = result.fetchall()
+                return [cls.instance_from_db(row) for row in rows]
+        except Exception as e:
+            return e
+        #sql = """ SELECT * FROM players WHERE game_id = ?; """
+        #rows = CURSOR.execute(sql, (gameid,)).fetchall()
+        #players = [cls.instance_from_db(row) for row in rows]
+        #[print(player) for player in players]
+        #return players
+    
