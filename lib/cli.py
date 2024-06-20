@@ -40,6 +40,16 @@ def exit_program():
     os.system('clear')
     print("Goodbye!")
     exit()
+    
+def exit_program_early(game):
+    players = get_player_list(game)
+    for player in players:
+        Game_space.delete(game, player)
+        Player.delete(player)
+    Game.delete(game)
+    os.system('clear')
+    print("Goodbye!")
+    exit()
 
 def new_game_setup_menu():
     print("New Game Menu:")
@@ -61,12 +71,12 @@ def new_game_setup(game):
         os.system('clear')
         start_game(game)
     elif choice == "4":
-        exit_program()
+        exit_program_early(game)
     else:
         os.system('clear')
         print("That is not a valid input.")
         print("Enter the number next to your choice.\n")
-        time.sleep(2.5)
+        time.sleep(1)
         new_game_setup(game)
     
     
@@ -74,7 +84,7 @@ def player_setup_menu():
     print("Players Menu")
     print("1 Add Player")
     print("2 See All Players")
-    print("3 Remove Player")   #add home position back into list
+    print("3 Remove Player")
     print("4 Edit Player")
     print("5 Return to Game Setup")
     print("6 Quit Game")
@@ -99,15 +109,13 @@ def player_setup(game):
         remove_player(game)
     elif choice == "4":
         os.system('clear')
-        edit_player(game)
+        edit_player_menu(game)
     elif choice == "5":
         os.system('clear')
         new_game_setup(game)
     elif choice == "6":
-        players = Player.get_all_players_by_gameid(game.id)
-        homes = Game_space.get_all_homes_by_gameid(game.id)
         os.system('clear')
-        exit_program(game, players, homes)
+        exit_program_early(game)
     else:
         os.system('clear')
         print("Invalid choice, please select again")
@@ -119,7 +127,6 @@ def check_num_players(game):
     return len(players)
 
 def remove_player(game):
-    os.system('clear')
     players = print_players(game)
     print("Enter the number of the player you would like to remove")
     print("0 - Back to Player Setup")
@@ -127,10 +134,11 @@ def remove_player(game):
     value = int(choice) if choice in ["0","1","2","3","4"] else 10
     if value > len(players):
         os.system('clear')
-        print("INVALID ENTRY \n")
+        print("INVALID ENTRY\n")
         time.sleep(1)
         remove_player(game)
     elif value == 0:
+        os.system('clear')
         player_setup(game)
     remove_player_home(game, players[(value - 1)])
     print(f"{players[(value - 1)].name}'s home has been deleted")
@@ -138,6 +146,7 @@ def remove_player(game):
     Player.delete(players[(value - 1)])
     print("press ENTER to continue")
     input()
+    os.system('clear')
     remove_player(game)
         
 def remove_player_home(game, player):
@@ -147,12 +156,76 @@ def remove_player_home(game, player):
     Game_space.delete(game, player)
         
 
+def edit_player_menu(game):  
+    players = print_players(game)
+    print("enter the number of the player you would like to EDIT")
+    print("0 - Back to Player Setup")
+    choice = input()
+    value = int(choice) if choice in ["0","1","2","3","4"] else 10
+    if value > len(players):
+        os.system('clear')
+        print("INVALID ENTRY\n")
+        time.sleep(1)
+        edit_player_menu(game)
+    elif value == 0:
+        os.system('clear')
+        player_setup(game)
+    else:
+        player = players[(value - 1)]
+        edit_player(game, player)
+        
+def edit_player(game, player):
+    os.system('clear')
+    print(f"Enter {player.name}'s new name")
+    print("Name must be less than 16 characters")
+    name = input()
+    if not 0 < len(name) < 16:
+        os.system('clear')
+        print("INVALID ENTRY\n")
+        edit_player(game, player)
+    else:
+        os.system('clear')
+        player.name = name
+
+    while True:
+        print(f"{player.name}, which type of player you would like to be?\n")
+        print('1 REALTOR = The REALTOR receives 10 percent of all property purchases')
+        print('2 COP = The COP receives $50 from any player occupying the same space')
+        print('3 BUILDER = The BUILDER recieves a 20 percent discount on home purchases')
+        print('4 PILOT = The PILOT can roll an unlimited number of doubles')
+        value = input()
+        if value == "1":
+            player.player_type = "REALTOR"
+            break
+        elif value == "2":
+            player.player_type = "COP"
+            break
+        elif value == "3":
+            player.player_type = "BUILDER"
+            break
+        elif value == "4":
+            player.player_type = "PILOT"
+            break
+        else:
+            os.system('clear')
+            print("You must choose from the 4 player types\n")
+            time.sleep(2.5)
+    player.update()
+    os.system('clear')
+    print("Updated Player Info:\n")
+    print(player)
+    print(" ")
+    player_setup(game)
         
 def enter_new_player(game):
     print("Enter Your Player's Name (required)")
     print("Name must be less than 16 characters")
+    print("Enter '0' to return to Player Setup")
     name = input()
-    if not 0 < len(name) < 16:
+    if name == "0":
+        os.system('clear')
+        player_setup(game)
+    elif not 0 < len(name) < 16:
         os.system('clear')
         print("INVALID ENTRY\n")
         enter_new_player(game)
@@ -166,6 +239,7 @@ def create_player_type(game, name):
     print('2 COP = The COP receives $50 from any player occupying the same space')
     print('3 BUILDER = The BUILDER recieves a 20 percent discount on home purchases')
     print('4 PILOT = The PILOT can roll an unlimited number of doubles')
+    print('0 Return to Player Setup')
     value = input()
     if value == "1":
         player_type = "REALTOR"
@@ -175,18 +249,23 @@ def create_player_type(game, name):
         player_type = "BUILDER"
     elif value == "4":
         player_type = "PILOT"
+    elif value == "0":
+        os.system('clear')
+        player_setup(game)
     else:
         os.system('clear')
         print("You must choose from the 4 player types\n")
         time.sleep(2.5)
         create_player_type(game, name)
-        
-    player = Player.create(name, player_type, 0, 1800, 1800, game.id)
-    print(f"Good Luck {player.name}!")
-    time.sleep(.5)
-    position = player_home_position.pop()
-    os.system('clear')
-    enter_player_home(position, player, game)
+    set_player(game, name, player_type)
+
+def set_player(game, name, player_type):
+        player = Player.create(name, player_type, 0, 1800, 1800, game.id)
+        print(f"Good Luck {player.name}!")
+        time.sleep(.5)
+        position = player_home_position.pop()
+        os.system('clear')
+        enter_player_home(position, player, game)
         
 def enter_player_home(position, player, game):
     print("Each player begins with a home property.\n")
@@ -210,18 +289,22 @@ def assign_game_space(game_id, player_id, space_id, street_name, position, price
     player_setup(game)
 
 def set_win_condition(game):
-    print("enter NET WORTH needed to win")
-    print("Must be between 5000 and 20000")
-    win_condition = input()
-    try:
-        if 5000 <= int(win_condition) <= 20000:
-            update_game_win_cond(game, win_condition)    
-    except ValueError:
-        os.system('clear')
-        print("Must enter a number between 5000 and 20000")
-        time.sleep(1.25)
-    finally:
-        return set_win_condition(game)
+    while True:
+        try:
+                print("enter NET WORTH needed to win")
+                print("Must be between 5000 and 20000")
+                win_condition = input()
+                if not 5000 <= int(win_condition) <= 20000:
+                    os.system('clear')
+                    print("INVALID ENTRY\n")
+                    time.sleep(2.5)
+                    continue
+                else:
+                    update_game_win_cond(game, win_condition)
+                    new_game_setup(game)
+                    break
+        except ValueError:
+            continue
 
 def update_game_win_cond(game, win_condition):
     game.win_condition = int(win_condition)
@@ -246,12 +329,6 @@ def print_players(game):
     return players
 
 def start_game(game):
-    pass
-
-def exit_program_prestart(game):
-    pass
-
-def edit_player(game):
     pass
 
 if __name__ == "__main__":
