@@ -5,9 +5,18 @@ from models.player import Player
 from models.game_space import Game_space
 from sqlite3 import *
 
-
-
-
+def migrate():
+    Game.drop_table()
+    Space.drop_table()
+    Game_space.drop_table()
+    Player.drop_table()
+    print("Tables have been dropped")
+    Game_space.create_table()
+    Game.create_table()
+    Space.create_table()
+    Player.create_table()
+    print("Tables have been created")
+    
 def seed_spaces():
     spaces = [('GO', 0, 0, 1, "Game", 1),
             ('unowned', 60, 30, 2, "Pink", 0),
@@ -36,6 +45,7 @@ def seed_spaces():
     for space in spaces:
         Space.create(*space)
     print("Spaces have successfully seeded")
+
 if __name__ == "__main__":
-    
+    migrate()
     seed_spaces()
