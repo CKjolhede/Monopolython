@@ -1,16 +1,20 @@
-# Phase 3 CLI+ORM Project Template
+# MONOPOLYTHON
 
-## Learning Goals
+## Overview
 
-- Discuss the basic directory structure of a CLI.
-- Outline the first steps in building a CLI.
+- Monopolython is a command line interface application that is a smaller version of the commonly known Monopoly™ board game. This application is a meant to be a demonstration of how object relational mapping should be done using Sqlite3 and Python.
 
 ---
 
 ## Introduction
 
-You now have a basic idea of what constitutes a CLI. Fork and clone this lesson
-for a project template for your CLI.
+Monopoloython utilizes the command line interface(cli) as the access point for user interaction.  Unlike a graphical user interface (GUI), the CLI relies on text inputs and typically uses minimal graphics and sound as part of the user interation. As is typical of CLI applications, the use of the mouse is virtually absent.
+
+This program relies upon a python interpreter and pip files to manage the virtual environment. Monopolython takes advantage of a handful of python libraries and modules to facilitate its functions. 
+
+Monopolython relies heavily upon Sqlite3 for its database interfacing and management. Monopolython takes advantage of the tools provided through the installed packages Rich and Pick to augment the graphical organization, presentation, and enhanced interactive features not found in native python libraries.  I have imported the python libraries:   time, os, random, ipdb, and sqlite3 as each offers tools that enable a more comfortable user experience. Primarily the libraries I've imported help manage the navigation of application menus in a way that makes them easier to read and assist in the speed in which information is presented to the user.
+
+
 
 Take a look at the directory structure:
 
@@ -22,34 +26,35 @@ Take a look at the directory structure:
 └── lib
     ├── models
     │   ├── __init__.py
-    │   └── model_1.py
+    │   └── game.py
+    │   └── game_space.py
+    │   └── player.py
+    │   └── space.py
     ├── cli.py
     ├── debug.py
-    └── helpers.py
+    └── setup_helper.py
+    └── monopolython.db
 ```
 
-Note: The directory also includes two files named `CONTRIBUTING.md` and
-`LICENSE.md` that are specific to Flatiron's curriculum. You can disregard or
-delete the files if you want.
 
 ---
 
 ## Generating Your Environment
 
-You might have noticed in the file structure- there's already a Pipfile!
-
-Install any additional dependencies you know you'll need for your project by
-adding them to the `Pipfile`. Then run the commands:
-
+upon installation of the program, users must first setup the virtual environment by running
+following commands:
 ```console
 pipenv install
 pipenv shell
 ```
-
+### a migrate.py file exists to reinitiate the database and its tables if necessary
 ---
 
-## Generating Your CLI
+## Database Organization and Relationships
 
+![Schema] (./lib/assets/Monopolython(3).png)
+4 tables reside within the database to organize and store game data for both during game_setup
+and synchronous data storage and retrieval during game play.
 A CLI is, simply put, an interactive script and prompts the user and performs
 operations based on user input.
 
