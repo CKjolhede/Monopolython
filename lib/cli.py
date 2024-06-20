@@ -42,11 +42,7 @@ def exit_program():
     print("Goodbye!")
     exit()
     
-def exit_program_early(game, players, homes):
-    for player in players:
-        Player.delete(player)
-    for home in homes:
-        Game_space.delete(home)
+def exit_program_early(game):
     Game.delete(game)
     os.system('clear')
     print("Goodbye!")
@@ -72,7 +68,7 @@ def new_game_setup(game):
         os.system('clear')
         start_game(game)
     elif choice == "4":
-        exit_program()
+        exit_program_early()
     else:
         os.system('clear')
         print("That is not a valid input.")
@@ -115,10 +111,8 @@ def player_setup(game):
         os.system('clear')
         new_game_setup(game)
     elif choice == "6":
-        players = Player.get_all_players_by_gameid(game.id)
-        homes = Game_space.get_all_homes_by_gameid(game.id)
         os.system('clear')
-        exit_program_early(game, players, homes)
+        exit_program_early(game)
     else:
         os.system('clear')
         print("Invalid choice, please select again")
