@@ -29,7 +29,7 @@ class Space():
         return space
     
     @classmethod
-    def find_by_space_position(cls, position):
+    def find_space_by_position(cls, position):
         sql = """ SELECT * FROM spaces WHERE position = ? LIMIT 1;"""
         row = CURSOR.execute(sql, (position,)).fetchone()
         return cls.instance_from_db(row) if row else None

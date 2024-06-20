@@ -30,7 +30,7 @@ def seed_spaces():
             ('unowned', 0, 100, 10, "Player", 0),
             ('unowned', 180, 90, 11, "Orange", 0),
             ('unowned', 200, 100, 12, "Orange", 0),
-            ("Free Spasce", 0, 0, 13, "Game", 1),
+            ("Free Space", 0, 0, 13, "Game", 1),
             ("unowned", 220, 110, 14, "Red", 0),
             ("unowned", 240, 120, 15, "Red", 0),
             ("unowned", 0, 100, 16, "Player", 0),

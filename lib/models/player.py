@@ -87,16 +87,7 @@ class Player():
         
     @classmethod
     def get_all_players_by_gameid(cls, game):
-        try:
-            with CONN:
-                result = CURSOR.execute("SELECT * FROM players WHERE game_id = ?;", (game.id,))
-                rows = result.fetchall()
-                return [cls.instance_from_db(row) for row in rows]
-        except Exception as e:
-            return e
-        #sql = """ SELECT * FROM players WHERE game_id = ?; """
-        #rows = CURSOR.execute(sql, (gameid,)).fetchall()
-        #players = [cls.instance_from_db(row) for row in rows]
-        #[print(player) for player in players]
-        #return players
-    
+            sql = """"SELECT * FROM players WHERE game_id = ?;"""
+            rows = CURSOR.execute(sql, (game.id,)).fetchall()
+            return [cls.instance_from_db(row) for row in rows]
+        

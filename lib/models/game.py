@@ -15,7 +15,8 @@ class Game():
                 id INTEGER PRIMARY KEY,
                 win_condition INTEGER,
                 curr_player TEXT,
-                next_player TEXT);""")
+                next_player TEXT,
+                save_name TEXT);""")
         except IntegrityError as e:
             return e 
 
@@ -29,16 +30,17 @@ class Game():
         CONN.commit()
 
     @classmethod
-    def create(cls, win_condition = 10000, curr_player = None, next_player = None):
+    def create(cls, win_condition = 10000, curr_player = None, next_player = None, save_name = None):
         """ Initialize a new Game instance and save the object to the database """
         game = cls()
         game.save()
         return game
     
-    def __init__(self, win_condition = 10000, curr_player = None, next_player = None, id = None):
+    def __init__(self, win_condition = 10000, curr_player = None, next_player = None, save_name = None, id = None):
         self.win_condition = win_condition
         self.curr_player = curr_player
         self.next_player = next_player
+        self.save_name = save_name
         self.id = id
         self.players = []
 
@@ -47,25 +49,27 @@ class Game():
     
     def save(self):
         sql = """
-            INSERT INTO games (win_condition, curr_player, next_player)
-            VALUES (?, ?, ?)
+            INSERT INTO games (win_condition, curr_player, next_player, save_name)
+            VALUES (?, ?, ?, ?)
         """
-        CURSOR.execute(sql, (self.win_condition, self.curr_player, self.next_player))
+        CURSOR.execute(sql, (self.win_condition, self.curr_player, self.next_player, self.save_name))
         CONN.commit()
         self.id = CURSOR.lastrowid
 
     def update(self):
         sql = """
             UPDATE games
-            SET win_condition = ?, curr_player = ?, next_player = ?
+            SET win_condition = ?, curr_player = ?, next_player = ?, save_name = ?
             WHERE id = ?;
         """
-        CURSOR.execute(sql, (self.win_condition, self.curr_player, self.next_player, self.id))
+        CURSOR.execute(sql, (self.win_condition, self.curr_player, self.next_player, self.save_name, self.id))
         CONN.commit()
-
-    def delete(self):
-        sql = """ DELETE FROM games WHERE id = ? """
-        CURSOR.execute(sql, (self.id,))
+        return self
+    
+    @classmethod
+    def delete(cls, game):
+        sql = """ DELETE FROM games WHERE id = ?;"""
+        CURSOR.execute(sql, (game.id,))
         CONN.commit()
         
     
