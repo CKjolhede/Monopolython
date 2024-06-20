@@ -3,11 +3,31 @@
 
 from models.__init__ import CONN, CURSOR
 import os
+import ipdb
+from models.player import Player
+from models.game import Game
+from models.space import Space
+from models.game_space import Game_space
+from sqlite3 import *
 
 
-#ipdb.set_trace()
-os.system("echo 'hello world'")
-os.system("say -v Zarvox 'hello world'")
+
+
+
+
+
+
+
+ipdb.set_trace()
+
+
+
+
+
+
+
+#os.system("echo 'hello world'")
+#os.system("say -v Zarvox 'hello world'")
 
 
 
