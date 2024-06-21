@@ -1,5 +1,8 @@
 # MONOPOLYTHON
 
+
+![alt text](<./wireframe2.png>) 
+
 ## Overview
 
 - Monopolython is a command line interface application that is a smaller version of the commonly known Monopoly™ board game. This application is a meant to be a demonstration of how object relational mapping should be done using Sqlite3 and Python.
