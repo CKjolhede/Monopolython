@@ -4,7 +4,7 @@ from sqlite3 import *
 import os
 import random
 from models.setup_helper import (seed_spaces)
-from models.gameplay_helpers import (scratch_ticket, header, print_player_order, set_empty_player_homes)
+from models.gameplay_helpers import (scratch_ticket, header, print_player_order, calc_net_worth)
 import ipdb
 from models.player import Player
 from models.space import Space
@@ -155,22 +155,21 @@ def create_player_type(game, name):
 
 def set_player(game, name, player_type):
         player = Player.create(name, player_type, 0, 1800, 1800, game.id)
-        print(f"Good Luck {player.name}!")
+        print(f"Good Luck {player.name}!\n")
         time.sleep(.5)
         position = player_home_position.pop()
-        os.system('clear')
         enter_player_home(position, player, game)
         
 def enter_player_home(position, player, game):
     print("Each player begins with a home property.\n")
     print(f"{player.name} enter a name for your home's street?")
     street_name = input()
-    if not street_name.isalpha():
+    if street_name.isalpha():
+        assign_game_space(game.id, player.id, position, street_name, position, 0, 100, "player", 0, 0, game) 
+    else:
         os.system('clear')
         print("Street cannot be left blank\n")
         enter_player_home(position, player, game)
-    else:
-        assign_game_space(game.id, player.id, position, street_name, position, 0, 100, "player", 0, 0, game) 
 
 def assign_game_space(game_id, player_id, space_id, street_name, position, price, rent, neighborhood, houses, monopoly, game):       
     space = Space.find_space_by_position(position)
@@ -329,7 +328,7 @@ def exit_program():
 def start_game(game):
     global game_players
     global player_home_position    
-    set_empty_player_homes(game, player_home_position)
+    #set_empty_player_homes(game, player_home_position)
     gamers = Player.get_all_players_by_gameid(game.id)
     game_players = random.sample(gamers, k=len(gamers))
     game.curr_player = game_players[0]
@@ -346,7 +345,7 @@ def set_current_player(game):
 
 def game_play_menu(game):
     header(game)
-    print("\n Game Menu")
+    print("  Game Menu")
     print("1 BUY HOUSES")
     print("2 ROLL DICE")
     print("3 SKIP TURN (COSTS $100)")
@@ -383,8 +382,9 @@ def roll(game):
     die1 = random.randint(1, 6)
     die2 = random.randint(1, 6)
     print(f"{game.curr_player.name} is on space {game.curr_player.curr_pos}")
-    print('_______  _______')
-    print(f'|_{die1}_|  |_{die2}_|')
+    print('______   ______')
+    print(f'|{die1}|  |{die2}|')
+    print('______   ______')
     dice = (die1 + die2)
     print(f"{game.curr_player.name}, you rolled a {dice}")
     global doubles_count
@@ -405,7 +405,6 @@ def roll(game):
         move(game, dice)
             
 def move(game, dice):
-    header(game)
     moveto = game.curr_player.curr_pos + dice
     if moveto > 24:
         pass_go(game, moveto)    
@@ -414,11 +413,9 @@ def move(game, dice):
     space = Space.find_space_by_position(game.curr_player.curr_pos)
     print(f"{game.curr_player.name} landed on {space.street_name}")
     speedtrap(game)
-    if space.owned == 0 and space.position not in player_house_positions:
-        os.system('clear')
-        header(game)
+    if space.owned == 0 and space.neighborhood != "player":
         buy_property(game, space)
-    elif space.position in player_house_positions:
+    elif space.owned == 0:
         print("This property is an empty player home and cannot be purchased.")
     elif space.owned == 1:
         game_space = Game_space.find_gamespace_by_position(game.id, game.curr_player.curr_pos)
@@ -430,20 +427,16 @@ def move(game, dice):
             owner.money += game_space.rent
             print(f"\nYou pay {owner.name} ${game_space.rent} for rent.")
     elif space.position == 7:
-        os.system('clear')
-        header(game)
+
         casino(game)
     elif space.position == 13:
-        os.system('clear')
-        header(game)
+
         scratch_ticket(game)
     elif space.position == 19:
-        os.system('clear')
-        header(game)
+
         pay_taxes(game)
     elif space.position == 1:
-        os.system('clear')
-        header(game)
+
         print("You safely land on GO")
     else:
         input("something is wrong")
@@ -451,20 +444,23 @@ def move(game, dice):
         
     
 def pay_taxes(game):
-    pass
+    print(f"{game.curr_player.name}, its time to pay your taxes.")
+    print("You pay $200 to the bank.")
+    game.curr_player.money -= 200
+    game.curr_player.update()
         
 def buy_houses(game):
-    props = Game_space.get_all_player_props_by_monopoly(game)
+    props = Game_space.get_all_player_monopoly_props(game, game.curr_player.id)
     i = 0
     for prop in props:
         if game.curr_player.player_type == "BUILDER":
             print(f'{i + 1} - {prop.street_name} houses cost ${prop.rent * .4}')
         else:
             print(f'{i + 1} - {prop.street_name} houses cost ${prop.rent * .5}')
-    print("\n Onto which property would you like to build a house?")
     print("0 - Return to Main Menu")
+    print("\n Onto which property would you like to build a house?")
     choice = input()
-    if 0 < int(choice) < (len(props) + 1) and choice.isdigit():
+    if int(choice) < (len(props) + 1) and choice.isdigit() == True:
         prop = props[(int(choice) - 1)]
         prop.houses += 1
         if game.curr_player.player_type == "BUILDER":
@@ -474,10 +470,8 @@ def buy_houses(game):
         game.curr_player.update()
         prop.update()
     elif choice == "0":
-        os.system('clear')
         game_play(game)  
     else:
-        os.system('clear')
         print("Invalid choice, please select again.")
         buy_houses(game)
 
@@ -491,13 +485,10 @@ def casino(game):  # sourcery skip: remove-redundant-if
     print("Go into the Casino? Y or N")
     value = input()
     if value == "Y" or "y":
-        os.system('clear')
         casinogame(game)
     elif value == "N" or "n":
-        os.system('clear')
         print("You chose not to enter the Casino.")
     else:
-        os.system('clear')
         print("Invalid choice, please select again.")
         casino(game)
         
@@ -510,10 +501,11 @@ def casinogame(game):
     bet = input()
     if int(bet) == 0:
         os.system('clear')
-        end_turn(game)
-    elif int(bet) > game.curr_player.money or not bet.isdigit():
-        os.system('clear')
+    elif bet.isdigit() == False:
         print("Invalid bet, please try again.")
+        casinogame(game)
+    elif int(bet) > game.curr_player.money:
+        print("You don't have that much money, please try again.")
         casinogame(game)
     print(f'You have bet ${bet}')
     game.curr_player.money -= int(bet)
@@ -527,13 +519,12 @@ def casinogame(game):
         game.curr_player.money += (int(bet) * 2)
     else:
         print(f'YOU LOST ${int(bet)}')
-        game.curr_player.money -= int(bet)
-    print(f'You now have ${game.curr_player.money}')
+    game.curr_player.update()
     input("Press ENTER to end turn")
     os.system('clear')
 
 def buy_property(game, space):
-    neighborhood_props_owned = Player.player_props_by_neighborhood(game.id, game.curr_player.id, space.neighborhood)
+    neighborhood_props_owned = Game_space.player_props_by_neighborhood(game.id, game.curr_player.id, space.neighborhood)
     print(f"{game.curr_player.name} would you like to buy this property?")
     print(f"Price: ${space.price}")
     print(f"Rent: ${space.rent}")
@@ -549,19 +540,18 @@ def buy_property(game, space):
     elif choice == "2":
         print("You chose not to buy this property.")
     else:
-        os.system('clear')
+
         print("Invalid choice, please select again.")
         buy_property(game, space)
         
 def closing(game, space):
     game.curr_player.money -= space.price
-    pay_realtors(space.price)
-    street_name = name_property(game)
+    pay_realtors(game, space.price)
     prop = Game_space.create(
         game.id, 
         game.curr_player.id, 
         space.id, 
-        street_name,
+        space.street_name,
         space.position, 
         space.price, 
         space.rent, 
@@ -574,15 +564,15 @@ def closing(game, space):
     monopoly_check(game, prop)
     print(f"Congratulations! You now own {prop.street_name}")
     
-def name_property(game):
-    print(f"{game.curr_player.name}, what would you like to name this property?")
-    street_name = input()
-    if not 0 < len(street_name) < 20:
-        print("Street name must be between 1 and 20 characters. Please try again.")
-        name_property(game)
-    else:
-        print(f"{street_name} is now the name of this property.")
-        return street_name
+#def name_property(game):
+#    print(f"{game.curr_player.name}, what would you like to name this property?")
+#    street_name = input()
+#    if not 0 < len(street_name) < 20:
+#        print("Street name must be between 1 and 20 characters. Please try again.")
+#        name_property(game)
+#    else:
+#        print(f"{street_name} is now the name of this property.")
+#        return street_name
     
 def pass_go(game, moveto):
     game.curr_player.curr_pos = moveto - 24
@@ -592,13 +582,14 @@ def pass_go(game, moveto):
     game.curr_player.update()
     return
 
-def monopoly_check(game, space):
-    neighborhood_props = Player.player_props_by_neighborhood(game.id, game.curr_player.id, space.neighborhood)
+def monopoly_check(game, gamespace):
+    neighborhood_props = Game_space.player_props_by_neighborhood(game.id, game.curr_player.id, gamespace.neighborhood)
     if len(neighborhood_props) == 2:
-        print(f"{game.curr_player.name} now has a monopoly in the {space.neighborhood} neighborhood.")
+        print(f"{game.curr_player.name} now has a monopoly in the {gamespace.neighborhood} neighborhood.")
         print("Rent for all properties in this neighborhood is now doubled.")
         for prop in neighborhood_props:
             prop.rent = (prop.rent * 2)
+            prop.monopoly = 1
             prop.update()
 
 
@@ -611,37 +602,37 @@ def speedtrap(game):
             game.curr_player.money -= 100
             player.money += 100
             player.update()
+            game.curr_player.update()
 
-def pay_realtors(price):
+def pay_realtors(game, price):
     global game_players
     for player in game_players:
         if player.player_type == "REALTOR":
             print(f"{player.name} is a REALTOR and has earned {price * 0.1} for this sale.")
             player.money += (price * 0.1)
+            calc_net_worth(game, player)
             player.update()
 
 def end_turn(game):
     global t
     t += 1
-    game.curr_player.update
-    game.curr_player.networth = calc_net_worth(game)
+    game.curr_player.update()
+    game.curr_player.networth = calc_net_worth(game, game.curr_player)
     game.curr_player.update()
     check_win(game)
+    print(f"{game.curr_player.name}'s turn has ended.")
+    input("Press ENTER to continue")
     set_current_player(game)
     game.update()
     game_play(game)
 
-def calc_net_worth(game):
-    props = Game_space.get_all_player_props(game.id, game.curr_player.id)
-    propvalue = sum(
-        (prop.houses * prop.price / 4) + (prop.price / 2) for prop in props
-    )
-    return game.curr_player.money + propvalue
+
     
 def check_win(game):
     if game.curr_player.net_worth > game.win_condition:
         os.system('clear')
-        print(f'{game.curr_player} has won the game!')
+        print(f'{game.curr_player.name} has a NET WORTH of ${game.curr_player.net_worth}')
+        print(f'{game.curr_player.name} has won the game!')
         input("Press ENTER to exit")
         
 

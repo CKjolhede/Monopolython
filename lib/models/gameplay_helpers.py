@@ -17,7 +17,7 @@ def check_num_players(game):
 def header(game):
     print(game)
     print(game.curr_player)
-    print('----------------------\n')
+    print('---------------------------------')
 
 def scratch_ticket(game):
     print("ITCHY TICKETS")
@@ -55,14 +55,26 @@ def scratch(game):
     print(f"Your Itchy Ticket\n")
     ticket = "          $ |A| |B| |C| |D| |E| |F| 0\n"
     print(ticket)
+    first_itch(ticket, itchies, game)
+    
+def first_itch(ticket, itchies, game):
     print("Which letter would you like to itch?\n")
     letter1 = input()
     letter1 = letter1.upper()
+    if letter1 not in ticket or letter1.isalpha() == False:
+        print("Please select a valid letter")
+        first_itch(ticket, itchies, game)
     ticket2 = ticket.replace(letter1, str(itchies[letter1]))
     print(ticket2)
+    second_itch(ticket2, itchies, game)
+    
+def second_itch(ticket2, itchies, game):
     print("Which letter would you like to itch?\n")
     letter2 = input()
     letter2 = letter2.upper()
+    if letter2 not in ticket2 or letter2.isalpha() == False:
+        print("Please select a valid letter")
+        second_itch(ticket2, itchies, game)
     ticket3 = ticket2.replace(letter2, str(itchies[letter2]))
     print(ticket3)
     prize = [letter for letter in ticket3 if letter.isdigit()]
@@ -75,10 +87,18 @@ def print_player_order(game_players):
     for i, player in enumerate(game_players, start=1):
         print(f"{i} - {player}")
         
-def set_empty_player_homes(game, slots):
-    for slot in slots:
-        space = Space.find_space_by_position(slot)
-        space.owned = 1
-        space.update()
+#def set_empty_player_homes(game, slots):
+#    for slot in slots:
+#        space = Space.find_space_by_position(slot)
+#        space.owned = 1
+#        space.update()
         #Game_space.create(game.id, None, space.id, "Empty House", slot, 0, 0, "player", 0, 0)
         
+def calc_net_worth(game, player):
+    props = Game_space.get_all_player_props(game.id, player.id)
+    propvalue = sum(
+        (prop.houses * prop.price / 4) + (prop.price / 2) for prop in props
+    )
+    player.net_worth = player.money + propvalue
+    player.update()
+    return player.net_worth

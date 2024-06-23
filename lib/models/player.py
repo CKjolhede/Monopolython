@@ -58,7 +58,7 @@ class Player():
         self.id = id
     
     def __repr__(self):
-        return f"{self.name}  |  {self.player_type}  |  Money:${self.money}  |  Net Worth:{self.net_worth}\n Current Position: {self.curr_pos}  | "
+        return f"{self.name} | {self.player_type} | Money: ${self.money} | Net Worth: ${self.net_worth} | Current Position: {self.curr_pos}"
 
     def save(self):
         sql = """
