@@ -11,7 +11,7 @@ from models.space import Space
 from models.game_space import Game_space
 from models.game import Game
 from models.__init__ import CONN, CURSOR
-    
+
 def main_menu():
     print("WELCOME TO MONOPOLYTHON!")
     print("Please select an option:")
@@ -36,7 +36,6 @@ def main():
         else:
             os.system('clear')
             print("Invalid selection\n")
-
 
 def new_game_setup_menu():
     print("New Game Menu:")
@@ -601,6 +600,7 @@ def monopoly_check(game, space):
         for prop in neighborhood_props:
             prop.rent = (prop.rent * 2)
             prop.update()
+
 
 def speedtrap(game):
     global game_players
