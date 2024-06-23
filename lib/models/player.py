@@ -2,8 +2,7 @@ from sqlite3 import *
 from models. __init__ import CONN, CURSOR
 from models.game_space import Game_space
 import ipdb
-#CONN = sqlite3.connect('./monopolython.db')
-#CURSOR = CONN.cursor()
+
 class Player():
     
     @classmethod
@@ -59,7 +58,7 @@ class Player():
         self.id = id
     
     def __repr__(self):
-        return f"{self.name}  |  {self.player_type}  |  Money:${self.money}  |  Net Worth:{self.net_worth}"
+        return f"{self.name}  |  {self.player_type}  |  Money:${self.money}  |  Net Worth:{self.net_worth}\n Current Position: {self.curr_pos}  | "
 
     def save(self):
         sql = """
@@ -86,17 +85,19 @@ class Player():
         CONN.commit()
         
     @classmethod
-    def get_all_players_by_gameid(cls, game):
-        try:
-            with CONN:
-                result = CURSOR.execute("SELECT * FROM players WHERE game_id = ?;", (game.id,))
-                rows = result.fetchall()
-                return [cls.instance_from_db(row) for row in rows]
-        except Exception as e:
-            return e
-        #sql = """ SELECT * FROM players WHERE game_id = ?; """
-        #rows = CURSOR.execute(sql, (gameid,)).fetchall()
-        #players = [cls.instance_from_db(row) for row in rows]
-        #[print(player) for player in players]
-        #return players
+    def get_all_players_by_gameid(cls, gameid):
+            sql = """SELECT * FROM players WHERE game_id = ?;"""
+            rows = CURSOR.execute(sql, (gameid,)).fetchall()
+            return [cls.instance_from_db(row) for row in rows]
+        
+    @classmethod
+    def player_props_by_neighborhood(cls,game_id, player_id, neighborhood):
+        sql = """ SELECT * FROM game_spaces WHERE game_id = ? AND player_id = ? AND neighborhood = ?;"""
+        rows = CURSOR.execute(sql, (game_id, player_id, neighborhood)).fetchall()
+        return [Game_space.instance_from_db(row) for row in rows]
     
+    @classmethod
+    def find_by_id(cls, playerid):
+        sql = """ SELECT * FROM players WHERE id = ? LIMIT 1;"""
+        row = CURSOR.execute(sql, (playerid,)).fetchone()
+        return cls.instance_from_db(row)

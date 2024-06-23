@@ -29,21 +29,22 @@ class Space():
         return space
     
     @classmethod
-    def find_by_space_position(cls, position):
+    def find_space_by_position(cls, position):
         sql = """ SELECT * FROM spaces WHERE position = ? LIMIT 1;"""
         row = CURSOR.execute(sql, (position,)).fetchone()
-        return cls.instance_from_db(row) if row else None
+        return cls.instance_from_db(row)
         
     @classmethod
     def instance_from_db(cls, row):
         return cls(
-            id=row[0],
-            street_name=row[1],
-            price=row[2],
-            rent=row[3],
-            position=row[4],
-            neighborhood=row[5],
-            owned=[6])
+            id = row[0],
+            street_name = row[1],
+            price = row[2],
+            rent = row[3],
+            position = row[4],
+            neighborhood = row[5],
+            owned = row[6]
+            )
     
     def __init__(self, street_name, price, rent, position, neighborhood, owned = False, id = None):
         self.street_name = street_name
@@ -74,4 +75,4 @@ class Space():
         CONN.commit()
         
     def __repr__(self):
-        return f"<{self.street_name}: Price = {self.price}: Rent = {self.rent}: Neighborhood = {self.neighborhood}: Owned = {self.owned}>"
+        return f"{self.street_name}:\nPrice = {self.price}\nRent = {self.rent}\nNeighborhood = {self.neighborhood}"

@@ -43,7 +43,7 @@ class Game_space:
         return game_space
     
     def __init__(self, game_id, player_id, space_id, street_name, position, price = 0, rent = 0, neighborhood = None, houses = 0, monopoly = 0, id = None):
-        space = Space.find_by_space_position(position)
+        space = Space.find_space_by_position(position)
         self.game_id = game_id
         self.player_id = player_id
         self.space_id = space_id
@@ -88,10 +88,16 @@ class Game_space:
         sql = """ SELECT * FROM game_spaces WHERE game_id = ?;"""
         rows = CURSOR.execute(sql, (gameid, )).fetchall
         return [cls.instance_from_db(row) for row in rows]
+    
+    @classmethod    
+    def find_gamespace_by_position(cls, gameid, position):
+        sql = """ SELECT * FROM game_spaces WHERE game_id = ? AND position = ?;"""
+        row = CURSOR.execute(sql, (gameid, position)).fetchone()
+        return cls.instance_from_db(row)
         
     @classmethod
     def instance_from_db(cls, row):
-        game_space = cls(
+        return cls(
             row[1],
             row[2],
             row[3],
@@ -107,6 +113,23 @@ class Game_space:
     @classmethod
     def get_player_home(cls, game, player):
         sql = """ SELECT * FROM game_spaces WHERE (game_id = ? AND player_id = ? AND neighborhood = ?) LIMIT 1;"""
-        row = CURSOR.execute(sql, (game.id, player.id, "Player")).fetchone()
-        ipdb.set_trace()
+        row = CURSOR.execute(sql, (game.id, player.id, "Player")).fetchall()
         return cls.instance_from_db(row) if row else None        
+    
+    @classmethod
+    def get_all_props_by_neighborhood(cls, game_id, neighborhood):
+        sql = """ SELECT * FROM game_spaces WHERE game_id = ? AND neighborhood = ?;"""
+        rows = CURSOR.execute(sql, (game_id, neighborhood)).fetchall()
+        return [cls.instance_from_db(row) for row in rows]
+    
+    @classmethod
+    def get_all_player_props_by_monopoly(cls, game):
+        sql = """ SELECT * FROM game_spaces WHERE game_id = ? AND player_id = ? AND monopoly = ?;"""
+        rows = CURSOR.execute(sql, (game.id, game.curr_player.id, 1)).fetchall()
+        return [cls.instance_from_db(row) for row in rows]
+    
+    @classmethod
+    def get_all_player_props(cls, gameid, playerid):
+        sql = """ SELECT * FROM game_spaces WHERE game_id = ? AND player_id = ?;"""
+        rows = CURSOR.execute(sql, (gameid, playerid)).fetchall()
+        return [cls.instance_from_db(row) for row in rows]
