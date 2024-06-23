@@ -123,13 +123,19 @@ class Game_space:
         return [cls.instance_from_db(row) for row in rows]
     
     @classmethod
-    def get_all_player_props_by_monopoly(cls, game):
-        sql = """ SELECT * FROM game_spaces WHERE game_id = ? AND player_id = ? AND monopoly = ?;"""
-        rows = CURSOR.execute(sql, (game.id, game.curr_player.id, 1)).fetchall()
+    def player_props_by_neighborhood(cls, gameid, playerid, neighborhood):
+        sql = """ SELECT * FROM game_spaces WHERE game_id = ? AND player_id = ? AND neighborhood = ?;"""
+        rows = CURSOR.execute(sql, (gameid, playerid, neighborhood)).fetchall()
         return [cls.instance_from_db(row) for row in rows]
     
     @classmethod
     def get_all_player_props(cls, gameid, playerid):
         sql = """ SELECT * FROM game_spaces WHERE game_id = ? AND player_id = ?;"""
         rows = CURSOR.execute(sql, (gameid, playerid)).fetchall()
+        return [cls.instance_from_db(row) for row in rows]
+    
+    @classmethod
+    def get_all_player_monopoly_props(cls, game, playerid):
+        sql = """ SELECT * FROM game_spaces WHERE game_id = ? AND player_id = ? AND monopoly = 1;"""
+        rows = CURSOR.execute(sql, (game.id, playerid)).fetchall()
         return [cls.instance_from_db(row) for row in rows]
