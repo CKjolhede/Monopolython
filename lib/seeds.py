@@ -9,6 +9,7 @@ from sqlite3 import *
 
 
 def seed_spaces():
+    Space.drop_table()
     spaces = [('GO', 0, 0, 1, "Game", 1),
             ('unowned', 60, 30, 2, "Pink", 0),
             ('unowned', 80, 40, 3, "Pink", 0),

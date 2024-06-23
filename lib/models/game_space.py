@@ -88,10 +88,16 @@ class Game_space:
         sql = """ SELECT * FROM game_spaces WHERE game_id = ?;"""
         rows = CURSOR.execute(sql, (gameid, )).fetchall
         return [cls.instance_from_db(row) for row in rows]
+    
+    @classmethod    
+    def find_gamespace_by_position(cls, gameid, position):
+        sql = """ SELECT * FROM game_spaces WHERE game_id = ? AND position = ?;"""
+        row = CURSOR.execute(sql, (gameid, position)).fetchone()
+        return cls.instance_from_db(row)
         
     @classmethod
     def instance_from_db(cls, row):
-        game_space = cls(
+        return cls(
             row[1],
             row[2],
             row[3],
@@ -107,8 +113,7 @@ class Game_space:
     @classmethod
     def get_player_home(cls, game, player):
         sql = """ SELECT * FROM game_spaces WHERE (game_id = ? AND player_id = ? AND neighborhood = ?) LIMIT 1;"""
-        row = CURSOR.execute(sql, (game.id, player.id, "Player")).fetchone()
-        ipdb.set_trace()
+        row = CURSOR.execute(sql, (game.id, player.id, "Player")).fetchall()
         return cls.instance_from_db(row) if row else None        
     
     @classmethod
@@ -124,7 +129,7 @@ class Game_space:
         return [cls.instance_from_db(row) for row in rows]
     
     @classmethod
-    def get_all_player_props(cls, game, player):
+    def get_all_player_props(cls, gameid, playerid):
         sql = """ SELECT * FROM game_spaces WHERE game_id = ? AND player_id = ?;"""
-        rows = CURSOR.execute(sql, (game.id, player.id)).fetchall()
+        rows = CURSOR.execute(sql, (gameid, playerid)).fetchall()
         return [cls.instance_from_db(row) for row in rows]

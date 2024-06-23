@@ -14,9 +14,7 @@ class Game():
                 """CREATE TABLE IF NOT EXISTS games (
                 id INTEGER PRIMARY KEY,
                 win_condition INTEGER,
-                curr_player TEXT,
-                next_player TEXT,
-                save_name TEXT);""")
+                curr_player TEXT);""")
         except IntegrityError as e:
             return e 
 
@@ -30,39 +28,35 @@ class Game():
         CONN.commit()
 
     @classmethod
-    def create(cls, win_condition = 10000, curr_player = None, next_player = None, save_name = None):
+    def create(cls, win_condition = 10000, curr_player = None):
         """ Initialize a new Game instance and save the object to the database """
         game = cls()
         game.save()
         return game
     
-    def __init__(self, win_condition = 10000, curr_player = None, next_player = None, save_name = None, id = None):
+    def __init__(self, win_condition = 10000, curr_player = None, id = None):
         self.win_condition = win_condition
         self.curr_player = curr_player
-        self.next_player = next_player
-        self.save_name = save_name
         self.id = id
-        self.players = []
 
     def __repr__(self):
-        return f"<Game {self.id}: First Net-Worth = {self.win_condition} wins: List of players: {self.players}>"
+        return f"Current Player: {self.curr_player.name}"
     
     def save(self):
         sql = """
-            INSERT INTO games (win_condition, curr_player, next_player, save_name)
-            VALUES (?, ?, ?, ?)
+            INSERT INTO games (win_condition, curr_player)
+            VALUES (?, ?)
         """
-        CURSOR.execute(sql, (self.win_condition, self.curr_player, self.next_player, self.save_name))
+        CURSOR.execute(sql, (self.win_condition, self.curr_player))
         CONN.commit()
         self.id = CURSOR.lastrowid
 
     def update(self):
         sql = """
-            UPDATE games
-            SET win_condition = ?, curr_player = ?, next_player = ?, save_name = ?
-            WHERE id = ?;
+            UPDATE games SET win_condition = ?, curr_player = ? WHERE id = ?;
         """
-        CURSOR.execute(sql, (self.win_condition, self.curr_player, self.next_player, self.save_name, self.id))
+        #ipdb.set_trace()
+        CURSOR.execute(sql, (self.win_condition, self.curr_player.name, self.id,))
         CONN.commit()
         return self
     
